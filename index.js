@@ -45,6 +45,24 @@ async function run() {
             const result = await userCollection.updateOne(query, updateDoc, options);
             res.send(result)
         })
+        app.put('/users/valid/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    valid: 'validated'
+                },
+            };
+            const result = await userCollection.updateOne(query, updateDoc, options);
+            res.send(result)
+        })
+        app.delete('/users/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query)
+            res.send(result)
+        })
         app.post('/cars', async (req, res) => {
             const car = req.body;
             const result = await carCollection.insertOne(car)
