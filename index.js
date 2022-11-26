@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -33,6 +33,18 @@ async function run() {
             const cursor = await userCollection.find(query).toArray()
             res.send(cursor)
         })
+        app.put('/users/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: 'seller'
+                },
+            };
+            const result = await userCollection.updateOne(query, updateDoc, options);
+            res.send(result)
+        })
         app.post('/cars', async (req, res) => {
             const car = req.body;
             const result = await carCollection.insertOne(car)
@@ -45,6 +57,7 @@ async function run() {
             const result = await carCollection.find(query).toArray()
             res.send(result)
         })
+
     }
     finally {
 
