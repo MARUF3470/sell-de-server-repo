@@ -91,6 +91,12 @@ async function run() {
             const result = await bookingCollection.insertOne(booking)
             res.send(result)
         })
+        app.get('/bookings/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email }
+            const result = await bookingCollection.find(query).toArray()
+            res.send(result)
+        })
 
     }
     finally {
