@@ -23,6 +23,7 @@ async function run() {
         const userCollection = client.db('sellDe').collection('users')
         const carCollection = client.db('sellDe').collection('cars')
         const bookingCollection = client.db('sellDe').collection('bookings')
+        const adverticeCollection = client.db('sellDe').collection('advertice')
         app.post('/users', async (req, res) => {
             const user = req.body;
             console.log(user)
@@ -75,6 +76,12 @@ async function run() {
             const result = await carCollection.find(query).toArray()
             res.send(result)
         })
+        app.delete('/cars/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await carCollection.deleteOne(filter)
+            res.send(result)
+        })
 
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
@@ -83,12 +90,11 @@ async function run() {
             const result = await carCollection.find(query).toArray()
             res.send(result)
         })
-        app.get('/users/role', async (req, res) => {
-            const email = req.query.email
-            const role = req.query.role;
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email
+
             const query = {
                 email: email,
-                role: role
             }
             const result = await userCollection.findOne(query)
             res.send(result)
@@ -108,6 +114,11 @@ async function run() {
             const email = req.params.email;
             const query = { userEmail: email }
             const result = await bookingCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.post('/advertice', async (req, res) => {
+            const advertice = req.body;
+            const result = await adverticeCollection.insertOne(advertice)
             res.send(result)
         })
 
