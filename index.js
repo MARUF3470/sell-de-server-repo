@@ -69,6 +69,13 @@ async function run() {
             const result = await carCollection.insertOne(car)
             res.send(result)
         })
+
+        app.get('/cars', async (req, res) => {
+            const query = {}
+            const result = await carCollection.find(query).toArray()
+            res.send(result)
+        })
+
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
             // console.log(id)
