@@ -22,6 +22,7 @@ async function run() {
     try {
         const userCollection = client.db('sellDe').collection('users')
         const carCollection = client.db('sellDe').collection('cars')
+        const bookingCollection = client.db('sellDe').collection('bookings')
         app.post('/users', async (req, res) => {
             const user = req.body;
             console.log(user)
@@ -73,6 +74,21 @@ async function run() {
             // console.log(id)
             const query = { category: id }
             const result = await carCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/users/role', async (req, res) => {
+            const email = req.query.email
+            const role = req.query.role;
+            const query = {
+                email: email,
+                role: role
+            }
+            const result = await userCollection.findOne(query)
+            res.send(result)
+        })
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingCollection.insertOne(booking)
             res.send(result)
         })
 
