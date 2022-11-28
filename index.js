@@ -59,7 +59,31 @@ async function run() {
             const result = await userCollection.updateOne(query, updateDoc, options);
             res.send(result)
         })
+        app.put('/sellers/valid/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    valid: 'validated'
+                },
+            };
+            const result = await userCollection.updateOne(query, updateDoc, options);
+            res.send(result)
+        })
         app.delete('/users/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query)
+            res.send(result)
+        })
+        app.delete('/buyers/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query)
+            res.send(result)
+        })
+        app.delete('/sellers/delete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await userCollection.deleteOne(query)
@@ -85,7 +109,6 @@ async function run() {
 
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
-            // console.log(id)
             const query = { category: id }
             const result = await carCollection.find(query).toArray()
             res.send(result)
@@ -97,6 +120,16 @@ async function run() {
                 email: email,
             }
             const result = await userCollection.findOne(query)
+            res.send(result)
+        })
+        app.get('/buyers', async (req, res) => {
+            const query = { role: 'buyer' }
+            const result = await userCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/sellers', async (req, res) => {
+            const query = { role: 'seller' }
+            const result = await userCollection.find(query).toArray()
             res.send(result)
         })
         app.post('/bookings', async (req, res) => {
