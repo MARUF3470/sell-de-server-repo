@@ -6,6 +6,26 @@ const port = process.env.PORT || 5000;
 
 app.use(cors())
 app.use(express.json())
+require('dotenv').config()
+var jwt = require('jsonwebtoken');
+
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).send({ message: 'unauthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+    console.log(authHeader)
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden access' });
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
 
 // userName : sellDeDb
 //password: aDBBl44kiwdMe9rM
@@ -15,7 +35,7 @@ app.get('/', (req, res) => {
 })
 
 
-const uri = "mongodb+srv://sellDeDb:aDBBl44kiwdMe9rM@cluster0.z1xe9fw.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.z1xe9fw.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
@@ -24,6 +44,11 @@ async function run() {
         const carCollection = client.db('sellDe').collection('cars')
         const bookingCollection = client.db('sellDe').collection('bookings')
         const adverticeCollection = client.db('sellDe').collection('advertice')
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+            res.send({ token })
+        })
         app.post('/users', async (req, res) => {
             const user = req.body;
             console.log(user)
@@ -122,7 +147,7 @@ async function run() {
             const result = await userCollection.findOne(query)
             res.send(result)
         })
-        app.get('/buyers', async (req, res) => {
+        app.get('/buyers', verifyJWT, async (req, res) => {
             const query = { role: 'buyer' }
             const result = await userCollection.find(query).toArray()
             res.send(result)
@@ -143,15 +168,20 @@ async function run() {
             const result = await bookingCollection.deleteOne(query)
             res.send(result)
         })
-        app.get('/bookings/:email', async (req, res) => {
+        app.get('/bookings/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email }
             const result = await bookingCollection.find(query).toArray()
             res.send(result)
         })
-        app.post('/advertice', async (req, res) => {
+        app.post('/car/advertice', async (req, res) => {
             const advertice = req.body;
             const result = await adverticeCollection.insertOne(advertice)
+            res.send(result)
+        })
+        app.get('/car/advertice', async (req, res) => {
+            const query = {};
+            const result = await adverticeCollection.find(query).toArray()
             res.send(result)
         })
 
